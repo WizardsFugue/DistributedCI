@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+
+        /* tell the SVG path to be a thin blue line without any area fill */
+        path {
+            stroke-width: 1;
+            fill: none;
+        }
+
+        .data1 {
+            stroke: steelblue;
+        }
+
+        .data2 {
+            stroke: lime;
+        }
+
+        .data3 {
+            stroke: orange;
+        }
+
+        .data4 {
+            stroke: red;
+        }
+
+        .axis {
+            shape-rendering: crispEdges;
+        }
+
+        .x.axis line {
+            stroke: lightgrey;
+        }
+
+        .x.axis .minor {
+            stroke-opacity: .5;
+        }
+
+        .x.axis path {
+            display: none;
+        }
+
+        .x.axis text {
+            font-size: 14;
+        }
+
+        .y.axis line, .y.axis path {
+            fill: none;
+            stroke: #000;
+        }
+
+        .y.axis text {
+            font-size: 14;
+        }
+
+        .y.axisRight text {
+            fill: orange;
+        }
+
+        .y.axisLeft text {
+            fill: steelblue;
+        }
+    </style>
+</head>
+<body>
+
+<div id="graph" class="aGraph" style="position:absolute;top:0px;left:0; float:left;"></div>
+
+
+<script type="application/javascript" src="d3.js" charset="utf-8"></script>
+<script>
+
+    /* implementation heavily influenced by http://bl.ocks.org/1166403 */
+    /* some arguments AGAINST the use of dual-scaled axes line graphs can be found at http://www.perceptualedge.com/articles/visual_business_intelligence/dual-scaled_axes.pdf */
+
+    // define dimensions of graph
+    var m = [80, 80, 80, 80]; // margins
+    var w = 900 - m[1] - m[3];	// width
+    var h = 400 - m[0] - m[2]; // height
+
+    d3.tsv("data.tsv", function(error, data) {
+
+        //console.log(data);
+        
+        // X scale will fit all values from data[] within pixels 0-w
+        var x = d3.scale.linear().domain([0, data.length]).range([0, w]);
+        // Y scale will fit values from 0-10 within pixels h-0 (Note the inverted domain for the y-scale: bigger is up!)
+        var dataValues = function(dataObject){
+            console.log(dataObject)
+            return [
+                parseInt( dataObject.lloc ),
+                parseInt( dataObject.llocClasses ),
+                parseInt( dataObject.llocFunctions ),
+                parseInt( dataObject.llocGlobal )
+            ];
+        }
+        
+        var min_max = [
+            d3.min(data, function(c) { return d3.min(dataValues(c)) }),
+            d3.max(data, function(c) { return d3.max(dataValues(c)) })
+        ];
+        console.log(min_max)
+        
+        var y = d3.scale.linear().domain(min_max).range([h, 0]); // in real world the domain would be dynamically calculated from the data
+       
+        var x_func = function(d,i) {
+            return x(i)
+        }
+        
+        // create a line function that can convert data[] into x and y points
+        var line1 = d3.svg.line()
+            // assign the X function to plot our line as we wish
+                .x(x_func)
+                .y(function(d) {
+                    return y(d.lloc);
+                })
+
+        // create a line function that can convert data[] into x and y points
+        var line2 = d3.svg.line()
+            // assign the X function to plot our line as we wish
+                .x(x_func)
+                .y(function(d) {
+                    return y(d.llocClasses);
+                })
+
+        // create a line function that can convert data[] into x and y points
+        var line3 = d3.svg.line()
+            // assign the X function to plot our line as we wish
+                .x(x_func)
+                .y(function(d) {
+                    return y(d.llocFunctions);
+                })
+
+        // create a line function that can convert data[] into x and y points
+        var line4 = d3.svg.line()
+            // assign the X function to plot our line as we wish
+                .x(x_func)
+                .y(function(d) {
+                    return y(d.llocGlobal);
+                })
+
+        var graph;
+        var generate_background = function(){
+
+            // Add an SVG element with the desired dimensions and margin.
+            graph = d3.select("#graph").append("svg:svg")
+                    .attr("width", w + m[1] + m[3])
+                    .attr("height", h + m[0] + m[2])
+                    .append("svg:g")
+                    .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
+
+            // create yAxis
+            var xAxis = d3.svg.axis().scale(x).tickSize(-h).tickSubdivide(true);
+            // Add the x-axis.
+            graph.append("svg:g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + h + ")")
+                    .call(xAxis);
+
+
+            // create left yAxis
+            var yAxisLeft = d3.svg.axis().scale(y).ticks(4).orient("left");
+            // Add the y-axis to the left
+            graph.append("svg:g")
+                    .attr("class", "y axis axisLeft")
+                    .attr("transform", "translate(-15,0)")
+                    .call(yAxisLeft);
+
+            // create right yAxis
+            var yAxisRight = d3.svg.axis().scale(y).ticks(6).orient("right");
+            // Add the y-axis to the right
+            graph.append("svg:g")
+                    .attr("class", "y axis axisRight")
+                    .attr("transform", "translate(" + (w+15) + ",0)")
+                    .call(yAxisRight);
+
+        }();
+        
+    // add lines
+    // do this AFTER the axes above so that the line is above the tick-lines
+    graph.append("svg:path").attr("d", line1(data)).attr("class", "data1");
+    graph.append("svg:path").attr("d", line2(data)).attr("class", "data2");
+    graph.append("svg:path").attr("d", line3(data)).attr("class", "data3");
+    graph.append("svg:path").attr("d", line4(data)).attr("class", "data4");
+    //graph.append("svg:path").attr("d", line2(data)).attr("class", "data2");
+
+    });
+
+
+</script>
+
+</body>
+</html>

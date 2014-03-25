@@ -1,0 +1,12 @@
+
+/vendor
+
+/backup/*
+!/backup/empty
+/var/*
+!/var/empty
+/public_result/*
+!/public_result/empty
+!/public_result/index.html
+
+/config.json

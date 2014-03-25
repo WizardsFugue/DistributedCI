@@ -1,0 +1,26 @@
+{
+    "name":     "WizardsFugue/DistributedCI",
+    "autoload":{
+        "psr-0": {
+            "WizardsFugue\\DistributedCI\\": "src/"
+        }
+    },
+    "require":  {
+        "mbostock/d3": "3.*",
+        "arbit/vcs-wrapper": "*@dev",
+        "phploc/phploc": "2.*",
+        "symfony/console": "2.4.*",
+        "symfony/finder": "2.4.*",
+        "symfony/dom-crawler": "2.4.*",
+        "symfony/css-selector": "2.4.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*",
+        "phpunit/phpunit-selenium":"*",
+        "phpunit/dbunit":"*",
+        "symfony/yaml":"*"
+
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
